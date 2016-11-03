@@ -8,7 +8,7 @@
     <ProjectGuid>ce2a3e85-38d2-4106-ab34-96b7c08f98eb</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Hackaton_CompetenceMapFSharp</RootNamespace>
-    <AssemblyName>Hackaton_CompetenceMapFSharp</AssemblyName>
+    <AssemblyName>CodeTopologyBuilder</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
@@ -23,7 +23,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\CompetenceMap.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
     <StartArguments>
     </StartArguments>
