@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<log>
+<logentry
+   revision="65144">
+<author>XXXX</author>
+<date>2016-09-29T11:52:28.557486Z</date>
+<paths>
+<path
+   action="M"
+   prop-mods="false"
+   text-mods="true"
+   kind="file">/Apps/UKF/all/trunk/src/RTY/nuget.config</path>
+<path
+   action="M"
+   prop-mods="false"
+   text-mods="true"
+   kind="file">/Apps/UKF/all/trunk/src/asd/nuget.config</path>
+</paths>
+<msg>asd asd asd asd asd asd asd asd asd as</msg>
+</logentry>
+<logentry
+   revision="64917">
+<author>YYYY</author>
+<date>2016-09-23T09:55:33.084478Z</date>
+<paths>
+<path
+   action="M"
+   prop-mods="true"
+   text-mods="false"
+   kind="dir">/Apps/UKF/all/trunk</path>
+<path
+   action="M"
+   prop-mods="true"
+   text-mods="false"
+   kind="dir">/Apps/UKF/all/trunk/src</path>
+<path
+   action="M"
+   prop-mods="false"
+   text-mods="true"
+   kind="file">/Apps/UKF/all/trunk/src/asd/asd.Server/ServiceMapper.cs</path>
+<path
+   action="M"
+   prop-mods="false"
+   text-mods="true"
+   kind="file">/Apps/UKF/all/trunk/src/asd/asd.Server/AddressServiceMapper.cs</path>
+</paths>
+<msg>qwqwcvqw qwq dqwf qw eqwe qwe qwe qwe qwe qw e</msg>
+</logentry>
+<logentry
+   revision="64912">
+<author>ZZZZ</author>
+<date>2016-09-23T09:33:38.021348Z</date>
+<paths>
+<path
+   action="M"
+   prop-mods="true"
+   text-mods="false"
+   kind="dir">/Apps/UKF/all/trunk</path>
+<path
+   action="M"
+   prop-mods="true"
+   text-mods="false"
+   kind="dir">/Apps/UKF/all/trunk/src</path>
+<path
+   action="M"
+   prop-mods="false"
+   text-mods="true"
+   kind="file">/Apps/UKF/all/trunk/src/asd/asd.Server/Sales/Contractors/Domain/Glossary.cs</path>
+<path
+   action="A"
+   prop-mods="false"
+   text-mods="true"
+   kind="file"
+   copyfrom-path="/Apps/UKF/all/trunk/src/asd/Anon/Anon_1.00.sql"
+   copyfrom-rev="66366">/Apps/UKF/all/trunk/src/asd/Anon/Anon.sql</path>
+</paths>
+<msg>quiwhds qwwuqh ue qwyueyqwuiyqwu eiyqw quw uqwy uqyw uqywe uqwe quwe y</msg>
+</logentry>
+</log>
