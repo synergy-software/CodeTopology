@@ -1,5 +1,9 @@
 ﻿[CmdletBinding()]
-param($CheckoutDir)
+param(
+    $CheckoutDir, 
+    [Parameter(Mandatory=$true)][ValidateSet('SVN','Git')]$VCS
+    )
+
 $scriptPath = if($PSScriptRoot -eq $null){"."} else {$PSScriptRoot}
 
 function Fix-CsvFileHeader{
@@ -88,13 +92,29 @@ function Set-ScriptEncoding($Encoding){
 
 }
 
+function Get-VcsModulePath{
+    switch($VCS)
+    {
+        "SVN" {  
+                Get-SvnModulePath
+                break
+              }
+        "Git" {
+                "#"
+                break
+              }
+        default {}
+    }
+}
+
 function Bundle-Report{
     [CmdletBinding()]
     Param($ClocDataFile, $SvnLogFile, $OutDataFile)
     Write-Verbose "Start bundling report"
-    $cleanCheckoutDir = $CheckoutDir -replace "\\","/" 
-    & "$scriptPath\CodeTopologyBuilder.exe" $cleanCheckoutDir $(Get-SvnModulePath) $SvnLogFile $ClocDataFile $OutDataFile
-    Write-Verbose "Svn module: $(Get-SvnModulePath)"
+    $cleanCheckoutDir = $CheckoutDir -replace "\\","/"
+    $vcsModulePath  = Get-VcsModulePath
+    & "$scriptPath\CodeTopologyBuilder.exe" $cleanCheckoutDir $vcsModulePath $SvnLogFile $ClocDataFile $OutDataFile
+    Write-Verbose "Svn module: $vcsModulePath"
     $raportTemplate = Get-Content -Path "$scriptPath\report_template.html" -Raw
     $data = Get-Content -Path  $OutDataFile -Raw
     $reportOutPath = ".\CodeTopologyReport.html"
@@ -108,10 +128,64 @@ function New-TempDirectory{
     $tempDirectoryPath
 }
 
+
+function Get-GitLog{
+
+    param($OutFilePath)
+    Write-Verbose "Start collecting Git log"
+    $currentLocation = Get-Location
+    Set-Location $CheckoutDir
+    $logentrySeparator = [guid]::NewGuid()
+    $fileSectionSeparator = [guid]::NewGuid()
+    $gitPreableFormat = "$logentrySeparator<logentry revision=\`"%H\`"><author>%an</author><date>%cd</date><msg><![CDATA[%B]]></msg>$fileSectionSeparator"
+    $gitLog = git log --pretty=format:"$gitPreableFormat" --name-status | Out-String    
+    
+    $generateLog = {
+        "<log>"
+        foreach($logEntry  in ($gitLog -split $logentrySeparator))
+        {
+            $preable, $files = ($logEntry -split $fileSectionSeparator)
+            if([string]::IsNullOrWhiteSpace($preable))
+            {
+                continue
+            }
+            $preable
+            "<paths>"
+            foreach($fileEntry in ($files -split '\r\n'))
+            {
+                if([String]::IsNullOrWhiteSpace($fileEntry)){
+                    continue
+                }
+                $kind, $filePath = $fileEntry -split '\t'
+                "<path action=`"$kind`" prop-mods=`"false`" text-mods=`"true`" kind=`"file`">$filePath</path>"
+            }
+            "</paths>"
+            "</logentry>"
+        }
+        "</log>"
+    }
+    
+    . $generateLog | Out-File -FilePath $OutFilePath -Encoding utf8
+    Set-Location $currentLocation
+    Write-Verbose "Finish collecting Git log"
+}
+
 $tmpDir = New-TempDirectory
 Write-Verbose $tmpDir
 Set-ScriptEncoding -Encoding System.Text.UTF8Encoding
 Get-FilesLOC -OutFilePath "$tmpDir\cloc.csv"
-Get-SvnStatistics -OutFilePath "$tmpDir\svnlogfile.xml"
+switch($VCS)
+{
+    "SVN" {  
+            Get-SvnStatistics -OutFilePath "$tmpDir\svnlogfile.xml"
+            break
+          }
+    "Git" {
+            Get-GitLog -OutFilePath "$tmpDir\svnlogfile.xml"
+            break
+          }
+    default {}
+}
+
 Bundle-Report -ClocDataFile "$tmpDir\cloc.csv" -SvnLogFile "$tmpDir\svnlogfile.xml" -OutDataFile "$tmpDir\result.json"
 Remove-Item $tmpDir -Recurse -Force
