@@ -12,13 +12,15 @@ let private fileIsFromBinOrObj(fileName:string)=
 let private normalizePath (path:string)=
     path.Replace("\\", "/")
 
+let private adjustFilePath filePath normalCheckoutDir = 
+    (normalizePath filePath).Replace(normalCheckoutDir, "").TrimStart([| '/' |])
+
 let getClocData (clocFilePath:string, checkoutDir) = 
-    let normalCheckoutDir = normalizePath checkoutDir
-    let prefixToRemove = checkoutDir
+    let normalCheckoutDir = normalizePath checkoutDir    
     cloc.Load(clocFilePath).Rows
     |> Seq.filter (fun x -> fileIsFromBinOrObj (x.Filename) = false)
     |> Seq.map (fun x -> 
-           { FileOfCode.fileName  =  (normalizePath x.Filename).Replace(checkoutDir, "")
+           { FileOfCode.fileName  =  adjustFilePath x.Filename normalCheckoutDir
              language = x.Language
              loc = x.Code })
     |> Seq.toArray
