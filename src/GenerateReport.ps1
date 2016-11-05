@@ -97,8 +97,9 @@ function Bundle-Report{
     Write-Verbose "Svn module: $(Get-SvnModulePath)"
     $raportTemplate = Get-Content -Path "$scriptPath\report_template.html" -Raw
     $data = Get-Content -Path  $OutDataFile -Raw
-    $raportTemplate -replace "#DATA_PLACEHOLDER#", $data | Out-File -FilePath "report.html" -Encoding utf8
-    Write-Verbose "Finish bundling report $(Get-Item report.html)"
+    $reportOutPath = ".\CodeTopologyReport.html"
+    $raportTemplate -replace "#DATA_PLACEHOLDER#", $data | Out-File -FilePath $reportOutPath  -Encoding utf8
+    Write-Verbose "Finish bundling report $(Get-Item $reportOutPath)"
 }
 
 function New-TempDirectory{
