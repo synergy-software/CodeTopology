@@ -100,6 +100,5 @@ let main argv =
     let serializedData = toJson { RootModel.Authors = authors
                                                       Languages = languages
                                                       Data = filesTree }
-    System.IO.File.WriteAllText(outputFilePath, serializedData, System.Text.Encoding.UTF8)
-    printfn "Finish!"
+    System.IO.File.WriteAllText(outputFilePath, serializedData, System.Text.Encoding.UTF8)    
     0

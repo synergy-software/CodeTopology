@@ -1,4 +1,5 @@
-﻿param($CheckoutDir)
+﻿[CmdletBinding()]
+param($CheckoutDir)
 $scriptPath = if($PSScriptRoot -eq $null){"."} else {$PSScriptRoot}
 
 function Fix-CsvFileHeader{
@@ -90,13 +91,14 @@ function Set-ScriptEncoding($Encoding){
 function Bundle-Report{
     [CmdletBinding()]
     Param($ClocDataFile, $SvnLogFile, $OutDataFile)
-    
+    Write-Verbose "Start bundling report"
     $cleanCheckoutDir = $CheckoutDir -replace "\\","/" 
     & "$scriptPath\CodeTopologyBuilder.exe" $cleanCheckoutDir $(Get-SvnModulePath) $SvnLogFile $ClocDataFile $OutDataFile
-    Write-Host "Svn module: $(Get-SvnModulePath)"
+    Write-Verbose "Svn module: $(Get-SvnModulePath)"
     $raportTemplate = Get-Content -Path "$scriptPath\report_template.html" -Raw
     $data = Get-Content -Path  $OutDataFile -Raw
     $raportTemplate -replace "#DATA_PLACEHOLDER#", $data | Out-File -FilePath "report.html" -Encoding utf8
+    Write-Verbose "Finish bundling report $(Get-Item report.html)"
 }
 
 function New-TempDirectory{
@@ -106,9 +108,9 @@ function New-TempDirectory{
 }
 
 $tmpDir = New-TempDirectory
-Write-Host $tmpDir
+Write-Verbose $tmpDir
 Set-ScriptEncoding -Encoding System.Text.UTF8Encoding
 Get-FilesLOC -OutFilePath "$tmpDir\cloc.csv"
 Get-SvnStatistics -OutFilePath "$tmpDir\svnlogfile.xml"
 Bundle-Report -ClocDataFile "$tmpDir\cloc.csv" -SvnLogFile "$tmpDir\svnlogfile.xml" -OutDataFile "$tmpDir\result.json"
-#Remove-Item $tmpDir -Recurse -Force
+Remove-Item $tmpDir -Recurse -Force
