@@ -1,13 +1,18 @@
 # CodeTopology
 A tool to visualise your codebase.
 
-Currently there is a support only for svn repository.
+![TortoiseSVN install](https://github.com/synergy-software/CodeTopology/blob/master/doc/sample01.jpg?raw=true)
+
+Supported repositories:
+* Git
+* SVN
+
 
 ##How to use it
 To generate CodeTopology report run the following script from powershell console
 
 ```powershell
-.\GenerateReport.ps1 -Verbose -CheckoutDir path_to_your_repository_checkout_dir
+.\GenerateReport.ps1 -Verbose -VCS Git -CheckoutDir path_to_your_repository_checkout_dir
 ```
 
 ###Prerequisites
