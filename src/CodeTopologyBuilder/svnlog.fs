@@ -82,10 +82,15 @@ let getCommitInfoPerFile(logFilePath:string, repoPrefix) =
               |> Seq.toArray }
     
     
-    svnData.Load(logFilePath).Logentries    
-    |> Array.fold (fun state commitData -> addCommitData state commitData) (new FilesCommits())
-    |> Seq.map (fun  (KeyValue(x, y)) -> mapToCommit x y)
-    |> Seq.toArray
+    let logentries = svnData.Load(logFilePath).Logentries
+    
+    let commitDataPerFile = 
+        logentries
+        |> Array.fold (fun state commitData -> addCommitData state commitData) (new FilesCommits())
+        |> Seq.map (fun  (KeyValue(x, y)) -> mapToCommit x y)
+        |> Seq.toArray
+    
+    (logentries.Length, commitDataPerFile)
 
 let authorsList (commits:Commit[]) =
     commits

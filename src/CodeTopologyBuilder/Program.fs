@@ -17,6 +17,8 @@ type Node =
 type RootModel = 
     { Authors : string []
       Languages: string []
+      TotalCommitCount: int
+      MaxCommitCount: int
       Data : Node }
 
 let tryGetChild node childName =
@@ -92,13 +94,16 @@ let main argv =
     let logFilePath = argv.[2]
     let clocFilPath = argv.[3]
     let outputFilePath = argv.[4]    
-    let svnData = svnlog.getCommitInfoPerFile(logFilePath, repoPrefix)
+    let commitCount, svnData = svnlog.getCommitInfoPerFile(logFilePath, repoPrefix)
+    let maxCommitCount = svnData |> Seq.map (fun x -> x.commits |> Seq.sumBy (fun y -> y.commits)) |> Seq.max
     let authors = svnlog.authorsList svnData    
     let clocData = cloc.getClocData(clocFilPath, checkoutDir)
     let languages = cloc.getLanguages clocData      
     let filesTree = mergeFilesData clocData svnData |>  buildFilesTree    
     let serializedData = toJson { RootModel.Authors = authors
                                                       Languages = languages
+                                                      TotalCommitCount = commitCount
+                                                      MaxCommitCount = maxCommitCount
                                                       Data = filesTree }
     System.IO.File.WriteAllText(outputFilePath, serializedData, System.Text.Encoding.UTF8)    
     0

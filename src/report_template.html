@@ -26,7 +26,7 @@
   font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
   text-anchor: middle;
   fill: white;
-  //text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+  /*text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;*/
 }
 
 .label,
@@ -42,13 +42,20 @@
 	right:0px;
 	bottom:0px;
 }
+#Category{
+	font-size: 20px;
+}
 </style>
 <html>
 <head>
 	<script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
 </head>
 <body>
-
+<select id="Category">
+	<option value="ownership">Ownership</option>	
+	<option value="commits">Commit count</option>
+</select>
+<div id="Legend"></div>
 <script>
 
 var legendColors = [
@@ -137,51 +144,80 @@ var svg = d3.select("body").append("svg")
   var focus = root,
       nodes = pack.nodes(root);
 
-  svg.append("g").selectAll("circle")
-      .data(nodes)
-    .enter().append("circle")
-      .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node-leaf" : "node node-root"; })
+	d3.select("#Category").on("change", function(){
+			var value = d3.select("#Category").property("value");
+			switch(value)
+			{
+				case "ownership":
+					paintByOwnership();
+				break;			
+				case "commits":
+					paintByCommits();
+				break;
+			}
+	});
+
+	function paintByOwnership(){
+		fileCirles.style("fill", function(d) {
+					if(d.data== null)
+					{
+						return color(d.depth);
+					}
+					var max = d.data.Fields[0].authors.sort(function(a,b){
+						return b.commits - a.commits;
+					});
+					if(max.length == 0)
+					{
+						return "black";
+					}
+					return authorsLegendColorsDict[max[0].author];
+	 }).style("fill-opacity",1);
+	}
+
+ function paintByCommits(){
+	 	fileCirles.style("fill", function(d) {
+					return d.data ? "darkred" :
+      		d.children ? color(d.depth) : "WhiteSmoke"; 
+	 }).style("fill-opacity", function(d) { 
+		 		 if( d.data)
+					{
+						return d.data.Fields[0].totalCommits /input.MaxCommitCount;
+					}
+				  return 1;
+		 });
+ }
+
+	var fileCirles =svg.append("g").selectAll("circle").data(nodes).enter().append("circle");  
+  fileCirles.attr("class", function(d) { return d.parent ? d.children ? "node" : "node node-leaf" : "node node-root"; })
       .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
       .attr("r", function(d) { return d.r; })	
-      .style("fill", function(d) {
-		if(d.data== null)
-		{
-			return color(d.depth);
-		}
-		var max = d.data.Fields[0].authors.sort(function(a,b){
-			return b.commits - a.commits;
-		});
-		if(max.length == 0)
-		{
-			return "black";
-		}
-		return authorsLegendColorsDict[max[0].author];
-	 })
-      //.style("fill-opacity", function(d) {	return d.data==null? d.weight:1; 		})
-      .on("click", function(d) {
-		if(d.data != null)
-		{
-			drawPieChart(d.data.Fields[0].authors);
-		}else{
-			zoom(focus == d ? root : d); 
-		}
-		return false;
-		})
-	  .append("svg:title")
-          .text(function(d, i) { 
+      .style("transition", "fill .5s ease-in-out, fill-opacity .5s ease-in-out")
+			.on("click", function(d) {
 				if(d.data != null)
 				{
-					var data = d.data.Fields[0];
-					var commits = 0;
-					var authors ="";
-					data.authors.forEach(function(el){
-						commits+=el.commits;
-						authors+= ";"+el.author+":"+el.commits;
-					});
-					return data.path +" [LOC:"+data.loc+"; Commits:"+commits+"; Authors:"+authors+"]";
+					drawPieChart(d.data.Fields[0].authors);
+				}else{
+					zoom(focus == d ? root : d); 
 				}
-				return d.name; 
+				return false;
+		})		
+	  .append("svg:title")
+		.text(function(d, i) { 
+					if(d.data != null)
+					{
+						var data = d.data.Fields[0];
+						var commits = 0;
+						var authors ="";
+						data.authors.forEach(function(el){
+							commits+=el.commits;
+							authors+= ";"+el.author+":"+el.commits;
+						});
+						return data.path +" [LOC:"+data.loc+"; Commits:"+commits+"; Authors:"+authors+"]";
+					}
+					return d.name; 
 		  });
+
+	paintByOwnership();
 
   svg.append("g").selectAll("text")
       .data(nodes)
@@ -316,6 +352,5 @@ var svg = d3.select("body").append("svg")
 d3.select(self.frameElement).style("height", outerDiameter + "px");
 
 </script>
-<div id="Legend"></div>
 </body>
 </html>
