@@ -52,7 +52,8 @@
 </head>
 <body>
 <select id="Category">
-	<option value="ownership">Ownership</option>	
+	<option value="ownership">Ownership</option>
+	<option value="language">Language</option>	
 	<option value="commits">Commit count</option>
 </select>
 <div id="Legend"></div>
@@ -139,6 +140,13 @@ var svg = d3.select("body").append("svg")
 		authorsLegendColorsDict[el] = legendColors[indx];
 		return [el, legendColors[indx]];
   });
+
+
+	var languageLegendColorsDict = {};
+  var languageLegendColors = input.Languages.map(function(el, indx){
+		languageLegendColorsDict[el] = legendColors[indx];
+		return [el, legendColors[indx]];
+  });
   
   var root = input.Data;
   var focus = root,
@@ -150,14 +158,18 @@ var svg = d3.select("body").append("svg")
 			{
 				case "ownership":
 					paintByOwnership();
+				break;
+				case "language":
+					paintByLanguage();
 				break;			
 				case "commits":
 					paintByCommits();
-				break;
+				break;	
 			}
 	});
 
 	function paintByOwnership(){
+		createLegend(author, authorsLegendColors);
 		fileCirles.style("fill", function(d) {
 					if(d.data== null)
 					{
@@ -171,6 +183,18 @@ var svg = d3.select("body").append("svg")
 						return "black";
 					}
 					return authorsLegendColorsDict[max[0].author];
+	 }).style("fill-opacity",1);
+	}
+
+	function paintByLanguage(){
+		createLegend(input.Languages, languageLegendColors);
+		fileCirles.style("fill", function(d) {
+					if(d.data== null)
+					{
+						return color(d.depth);
+					}
+					var lang = d.data.Fields[0].language;
+					return languageLegendColorsDict[lang];
 	 }).style("fill-opacity",1);
 	}
 
@@ -229,44 +253,49 @@ var svg = d3.select("body").append("svg")
       .style("display", function(d) { return d.parent === root ? null : "none"; })
       .text(function(d) { return d.name; });
 
-	  /*Legenda*/
-	  var width = 100;
-	  var legend = d3.select("body")
-		.append("svg")
-		.attr("class", "legend")
-		.attr("width", 200)
-		.attr("height", author.length * 30);
+		function createLegend(categories, colorMap)
+		{
+				d3.select(".legend").remove();
+				var width = 100;
+				var legend = d3.select("body")
+				.append("svg")
+				.attr("class", "legend")
+				.attr("width", 200)
+				.attr("height", categories.length * 30);
+				
+				var legendRect = legend.selectAll('rect').data(colorMap);
+
+				legendRect.enter()
+					.append("rect")
+					.attr("x", width - 60)
+					.attr("width", 20)
+					.attr("height", 20);
+
+				legendRect
+					.attr("y", function(d, i) {
+						return i * 30;
+					})
+					.style("fill", function(d) {
+						return d[1];
+					});
+					
+			var legendText = legend.selectAll('text').data(colorMap);
+
+			legendText.enter()
+				.append("text")
+				.attr("x", width - 30);
+
+			legendText
+				.attr("y", function(d, i) {
+					return i * 30 +15;
+				})
+				.text(function(d) {
+					return d[0];
+				});
+		}
+
 	  
-	  var legendRect = legend.selectAll('rect').data(authorsLegendColors);
 
-		legendRect.enter()
-			.append("rect")
-			.attr("x", width - 60)
-			.attr("width", 20)
-			.attr("height", 20);
-
-		legendRect
-			.attr("y", function(d, i) {
-				return i * 30;
-			})
-			.style("fill", function(d) {
-				return d[1];
-			});
-			
-	var legendText = legend.selectAll('text').data(authorsLegendColors);
-
-	legendText.enter()
-		.append("text")
-		.attr("x", width - 30);
-
-	legendText
-		.attr("y", function(d, i) {
-			return i * 30 +15;
-		})
-		.text(function(d) {
-			return d[0];
-		});
-	  /*Koniec legendy*/
 	  
 	  /*pie chart*/
 		function drawPieChart(pieInput){
