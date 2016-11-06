@@ -137,26 +137,30 @@ function Get-GitLog{
     Set-Location $CheckoutDir
     $logentrySeparator = [guid]::NewGuid()
     $fileSectionSeparator = [guid]::NewGuid()
-    $gitPreableFormat = "$logentrySeparator<logentry revision=\`"%H\`"><author>%an</author><date>%cd</date><msg><![CDATA[%B]]></msg>$fileSectionSeparator"
+    $messageSeparator = [guid]::NewGuid()
+    $gitPreableFormat = "$logentrySeparator<logentry revision=\`"%H\`"><author>%an</author><date>%cd</date><msg>$messageSeparator%B$messageSeparator></msg>$fileSectionSeparator"
     $gitLog = git log --pretty=format:"$gitPreableFormat" --name-status | Out-String    
     
-    $generateLog = {
+    $generateLog = {       
         "<log>"
         foreach($logEntry  in ($gitLog -split $logentrySeparator))
         {
-            $preable, $files = ($logEntry -split $fileSectionSeparator)
+            $preable, $files = ($logEntry -split $fileSectionSeparator)       
             if([string]::IsNullOrWhiteSpace($preable))
             {
                 continue
             }
-            $preable
+            $preableParts =  $preable -split $messageSeparator
+            $preableParts[0]
+            [System.Web.HttpUtility]::HtmlEncode($preableParts[1])
+            $preableParts[2]
             "<paths>"
             foreach($fileEntry in ($files -split '\r\n'))
             {
                 if([String]::IsNullOrWhiteSpace($fileEntry)){
                     continue
-                }
-                $kind, $filePath = $fileEntry -split '\t'
+                }            
+                $kind, $filePath = $fileEntry -split '\t'            
                 "<path action=`"$kind`" prop-mods=`"false`" text-mods=`"true`" kind=`"file`">$filePath</path>"
             }
             "</paths>"
@@ -165,7 +169,7 @@ function Get-GitLog{
         "</log>"
     }
     
-    . $generateLog | Out-File -FilePath $OutFilePath -Encoding utf8
+    . $generateLog | Out-File -FilePath $OutFilePath -Encoding utf8    
     Set-Location $currentLocation
     Write-Verbose "Finish collecting Git log"
 }
