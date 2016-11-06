@@ -16,9 +16,9 @@ To generate CodeTopology report run the following script from powershell console
 ```
 
 ###Prerequisites
-1. CodeTopology is using svn.exe to generate svn log. It is a part of TortoiseSVN so you have to install TortoiseSVN with selected "command line client tools" option.
+1. CodeTopology is using svn.exe to generate svn log. It is a part of TortoiseSVN so you have to install TortoiseSVN with selected "command line client tools" option. This is required only for SVN repositories.
 
-2. Script file dowloaded from the internet may be locked. Before running script remember to unlock file in file's options.
+2. Script file dowloaded from the internet may be blocked. Before running script remember to unblock file in file's options. In order to unblock script go to file options, find "Security" section on "General" tab and select "Unblock" option.
 
 
 ##TeamCity integration
