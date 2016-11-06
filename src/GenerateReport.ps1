@@ -133,6 +133,7 @@ function Get-GitLog{
 
     param($OutFilePath)
     Write-Verbose "Start collecting Git log"
+    Add-Type -AssemblyName System.Web
     $currentLocation = Get-Location
     Set-Location $CheckoutDir
     $logentrySeparator = [guid]::NewGuid()
