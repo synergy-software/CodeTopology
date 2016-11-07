@@ -1,4 +1,5 @@
-﻿module svnlog
+﻿[<RequireQualifiedAccess>]
+module svnlog
 
 open FSharp.Data
 open System.Xml.Linq
@@ -20,6 +21,8 @@ type private MoveMap = Dictionary<string,string>
 type private Removals()=
      let fileRemovals = MoveMap()
      let dirRemovals = MoveMap()
+     let (|Dir|File|) (path:svnData.Path)=
+        if path.Kind = "dir" then Dir else File
 
      let mapDirPath (path:string)=
         match dirRemovals.Keys |> Seq.tryFind (fun x -> path.StartsWith(x)) with
@@ -42,11 +45,9 @@ type private Removals()=
         for c in paths |> Seq.filter(fun x -> Option.isSome x.CopyfromPath) do
             let copyFrom = Option.get c.CopyfromPath            
             if paths |> Seq.exists (fun x -> x.Action = "D" && x.Value = copyFrom) then                
-                if c.Kind = "dir" then
-                    addMove dirRemovals c.Value copyFrom
-                else
-                    addMove fileRemovals c.Value copyFrom
-                    
+                match c with
+                | Dir -> addMove dirRemovals c.Value copyFrom
+                | File -> addMove fileRemovals c.Value copyFrom
 
      member this.mapPaths (paths: svnData.Path [])=
         paths |> Array.map mapFilePath
