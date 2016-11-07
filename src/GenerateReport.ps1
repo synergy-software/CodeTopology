@@ -1,7 +1,8 @@
 ﻿[CmdletBinding()]
 param(
     $CheckoutDir, 
-    [Parameter(Mandatory=$true)][ValidateSet('SVN','Git')]$VCS
+    [Parameter(Mandatory=$true)][ValidateSet('SVN','Git')]$VCS,
+    [string[]]$DirToExclude
     )
 
 $scriptPath = if($PSScriptRoot -eq $null){"."} else {$PSScriptRoot}
@@ -29,7 +30,9 @@ function Get-FilesLOC
     }
     Write-Verbose "Start colecting LOC statistics"
     Remove-Item $OutFilePath -ErrorAction SilentlyContinue
-    & $clocExePath --by-file --csv --skip-uniqueness --out="$OutFilePath" $CheckoutDir | Write-Verbose
+    $excludeParam = if ($DirToExclude){"--exclude-dir=$($DirToExclude -join ',')"}else {$null}
+    Write-Verbose "Exclude $excludeParam"
+    & $clocExePath --by-file --csv --skip-uniqueness $excludeParam --out="$OutFilePath" $CheckoutDir | Write-Verbose
     if(-not(Test-Path $OutFilePath))
     {
         $PSCmdlet.ThrowTerminatingError("Cannot create LOC statistics file")
