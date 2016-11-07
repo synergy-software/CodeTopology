@@ -2,7 +2,7 @@
 param(
     $CheckoutDir, 
     [Parameter(Mandatory=$true)][ValidateSet('SVN','Git')]$VCS,
-    [string[]]$DirToExclude
+    [string[]]$DirToExclude   
     )
 
 $scriptPath = if($PSScriptRoot -eq $null){"."} else {$PSScriptRoot}
@@ -32,7 +32,7 @@ function Get-FilesLOC
     Remove-Item $OutFilePath -ErrorAction SilentlyContinue
     $excludeParam = if ($DirToExclude){"--exclude-dir=$($DirToExclude -join ',')"}else {$null}
     Write-Verbose "Exclude $excludeParam"
-    & $clocExePath --by-file --csv --skip-uniqueness $excludeParam --out="$OutFilePath" $CheckoutDir | Write-Verbose
+    & $clocExePath --by-file --csv --skip-uniqueness $excludeParam --out="$OutFilePath" (Get-Item $CheckoutDir).FullName | Write-Verbose
     if(-not(Test-Path $OutFilePath))
     {
         $PSCmdlet.ThrowTerminatingError("Cannot create LOC statistics file")
@@ -114,7 +114,8 @@ function Bundle-Report{
     [CmdletBinding()]
     Param($ClocDataFile, $SvnLogFile, $OutDataFile)
     Write-Verbose "Start bundling report"
-    $cleanCheckoutDir = $CheckoutDir -replace "\\","/"
+    $cleanCheckoutDir = ((Get-Item $CheckoutDir).FullName) -replace "\\","/"
+    Write-Verbose "Checkout dir: $cleanCheckoutDir"
     $vcsModulePath  = Get-VcsModulePath
     & "$scriptPath\CodeTopologyBuilder.exe" $cleanCheckoutDir $vcsModulePath $SvnLogFile $ClocDataFile $OutDataFile
     Write-Verbose "Svn module: $vcsModulePath"
