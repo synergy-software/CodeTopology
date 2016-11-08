@@ -2,7 +2,7 @@
 param(
     $CheckoutDir, 
     [Parameter(Mandatory=$true)][ValidateSet('SVN','Git')]$VCS,
-    [string[]]$DirToExclude   
+    [string[]]$DirToExclude
     )
 
 $scriptPath = if($PSScriptRoot -eq $null){"."} else {$PSScriptRoot}
@@ -30,7 +30,9 @@ function Get-FilesLOC
     }
     Write-Verbose "Start colecting LOC statistics"
     Remove-Item $OutFilePath -ErrorAction SilentlyContinue
-    $excludeParam = if ($DirToExclude){"--exclude-dir=$($DirToExclude -join ',')"}else {$null}
+    $defaultIgnored =@("Bin","Obj","Lib","bin","obj","packages","lib","App_Data","node_modules", "bower_components") 
+    $toExclude =  $DirToExclude+$defaultIgnored
+    $excludeParam = "--exclude-dir=$($toExclude -join ',')"
     Write-Verbose "Exclude $excludeParam"
     & $clocExePath --by-file --csv --skip-uniqueness $excludeParam --out="$OutFilePath" (Get-Item $CheckoutDir).FullName | Write-Verbose
     if(-not(Test-Path $OutFilePath))
