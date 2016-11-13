@@ -7,6 +7,10 @@ Supported repositories:
 * Git
 * SVN
 
+Supported presentation modes:
+- Code ownership
+- Programming languages
+- Commits count
 
 ##How to use it
 ###Prerequisites
