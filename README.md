@@ -26,6 +26,19 @@ To generate CodeTopology report run the following script from powershell console
 .\GenerateReport.ps1 -Verbose -VCS SVN -CheckoutDir path_to_your_repository_checkout_dir
 ```
 
+By default CodeTopology ignores the following directories: *"Bin","Obj","Lib","bin","obj","packages","lib","App_Data","node_modules", "bower_components"*. 
+
+If you want to extend this list use **DirToExclude** parameter as follows:
+
+- To ignore single *dist* directory
+```powershell
+.\GenerateReport.ps1 -VCS Git -DirToExclude dist  -CheckoutDir path_to_your_repository_checkout_dir
+```
+- To ignore *dist1* and *dist2* directories
+```powershell
+.\GenerateReport.ps1 -VCS Git -DirToExclude dist1, dist2  -CheckoutDir path_to_your_repository_checkout_dir
+```
+
 
 ##TeamCity integration
 To get know how to integrate CodeTopology with TeamCity please visit project's Wiki.
