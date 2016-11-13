@@ -34,7 +34,7 @@ function Get-FilesLOC
     $toExclude =  $DirToExclude+$defaultIgnored
     $excludeParam = "--exclude-dir=$($toExclude -join ',')"
     Write-Verbose "Exclude $excludeParam"
-    & $clocExePath --by-file --csv --skip-uniqueness $excludeParam --out="$OutFilePath" (Get-Item $CheckoutDir).FullName | Write-Verbose
+    & $clocExePath --by-file --csv --skip-uniqueness $excludeParam --max-file-size=2 --out="$OutFilePath" (Get-Item $CheckoutDir).FullName | Write-Verbose
     if(-not(Test-Path $OutFilePath))
     {
         $PSCmdlet.ThrowTerminatingError("Cannot create LOC statistics file")
