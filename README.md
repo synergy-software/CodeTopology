@@ -12,13 +12,13 @@ Supported presentation modes:
 - Programming languages
 - Commits count
 
-##How to use it
-###Prerequisites
+## How to use it
+### prerequisites
 1. CodeTopology is using svn.exe to generate svn log. It is a part of TortoiseSVN so you have to install TortoiseSVN with selected "command line client tools" option. This is required only for SVN repositories.
 
 2. Script file dowloaded from the internet may be blocked. Before running script remember to unblock GenerateReport.ps1 file. In order to unblock script go to file options, find "Security" section on "General" tab and select "Unblock" option.
 
-###Generate report
+### Generate report
 To generate CodeTopology report run the following script from powershell console
 
 - For Git repository
@@ -44,5 +44,5 @@ If you want to extend this list use **DirToExclude** parameter as follows:
 ```
 
 
-##TeamCity integration
+## TeamCity integration
 To get know how to integrate CodeTopology with TeamCity please visit project's Wiki.
