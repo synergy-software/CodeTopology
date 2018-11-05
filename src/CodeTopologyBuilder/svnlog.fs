@@ -60,11 +60,11 @@ let private getCommitsData (state:FilesCommits) path=
         state.Add(path, x)
         x
 
-let getCommitInfoPerFile(logFilePath:string, repoPrefix) =    
+let getCommitInfoPerFile(logFilePath:string, repoPrefix, userMappingFunc: (string->string)) =    
     let removals = Removals()
 
     let addCommitData (state : FilesCommits) (commitData : svnData.Logentry) =         
-        let author = commitData.Author
+        let author = userMappingFunc commitData.Author
         removals.update commitData.Paths
         for path in commitData.Paths |> removals.mapPaths do       
             let commitInfo = getCommitsData state path

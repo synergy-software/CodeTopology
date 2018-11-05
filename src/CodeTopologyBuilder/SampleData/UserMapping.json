@@ -1,0 +1,8 @@
+﻿{
+  "mapping": [
+    {
+      "name": "text",
+      "alias": ["alias1", "alias2"]
+    }
+  ]
+}

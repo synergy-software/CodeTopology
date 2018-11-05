@@ -87,14 +87,35 @@ let toJson obj=
     settings.NullValueHandling <- Json.NullValueHandling.Ignore
     Newtonsoft.Json.JsonConvert.SerializeObject(obj,Json.Formatting.None, settings)
 
+open FSharp.Data
+
+type UserMapping = JsonProvider<"SampleData\UserMapping.json">
+
+let createUserMappingFunc (mappingFilePath:string)=
+    if String.IsNullOrWhiteSpace(mappingFilePath) then 
+        id
+    else
+       let mapping =  UserMapping.Load(mappingFilePath);
+       (fun username ->
+            let select = mapping.Mapping  |> Array.tryFind (fun el -> el.Alias |> Array.contains username )
+            match select with
+             | None -> username
+             | Some x -> x.Name
+            )
+    
+
+
 [<EntryPoint>]
 let main argv =    
     let checkoutDir = argv.[0]
     let repoPrefix = argv.[1]
     let logFilePath = argv.[2]
     let clocFilPath = argv.[3]
-    let outputFilePath = argv.[4]    
-    let commitCount, svnData = svnlog.getCommitInfoPerFile(logFilePath, repoPrefix)
+    let outputFilePath = argv.[4]
+    let userMappingPath = if Array.length argv = 6 then argv.[5] else  null;
+    let userMappingFunc = createUserMappingFunc userMappingPath
+
+    let commitCount, svnData = svnlog.getCommitInfoPerFile(logFilePath, repoPrefix, userMappingFunc)
     let maxCommitCount = svnData |> Seq.map (fun x -> x.commits |> Seq.sumBy (fun y -> y.commits)) |> Seq.max
     let authors = svnlog.authorsList svnData    
     let clocData = cloc.getClocData(clocFilPath, checkoutDir)

@@ -2,7 +2,8 @@
 param(
     $CheckoutDir, 
     [Parameter(Mandatory=$true)][ValidateSet('SVN','Git')]$VCS,
-    [string[]]$DirToExclude
+    [string[]]$DirToExclude,
+    $UserMapping
     )
 
 $scriptPath = if($PSScriptRoot -eq $null){"."} else {$PSScriptRoot}
@@ -114,12 +115,12 @@ function Get-VcsModulePath{
 
 function Bundle-Report{
     [CmdletBinding()]
-    Param($ClocDataFile, $SvnLogFile, $OutDataFile)
+    Param($ClocDataFile, $SvnLogFile, $OutDataFile, $UserMapping)
     Write-Verbose "Start bundling report"
     $cleanCheckoutDir = ((Get-Item $CheckoutDir).FullName) -replace "\\","/"
     Write-Verbose "Checkout dir: $cleanCheckoutDir"
     $vcsModulePath  = Get-VcsModulePath
-    & "$scriptPath\CodeTopologyBuilder.exe" $cleanCheckoutDir $vcsModulePath $SvnLogFile $ClocDataFile $OutDataFile
+    & "$scriptPath\CodeTopologyBuilder.exe" $cleanCheckoutDir $vcsModulePath $SvnLogFile $ClocDataFile $OutDataFile $UserMapping
     Write-Verbose "Svn module: $vcsModulePath"
     $raportTemplate = Get-Content -Path "$scriptPath\report_template.html" -Raw
     $data = Get-Content -Path  $OutDataFile -Raw
@@ -197,6 +198,6 @@ switch($VCS)
           }
     default {}
 }
-
-Bundle-Report -ClocDataFile "$tmpDir\cloc.csv" -SvnLogFile "$tmpDir\svnlogfile.xml" -OutDataFile "$tmpDir\result.json"
+$userMappingFullPath = if ([string]::IsNullOrWhiteSpace($UserMapping)){""}else {(Get-Item $UserMapping).FullName}
+Bundle-Report -ClocDataFile "$tmpDir\cloc.csv" -SvnLogFile "$tmpDir\svnlogfile.xml" -OutDataFile "$tmpDir\result.json" -UserMapping $userMappingFullPath
 Remove-Item $tmpDir -Recurse -Force
