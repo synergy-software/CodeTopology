@@ -168,8 +168,15 @@ function Get-GitLog{
                 if([String]::IsNullOrWhiteSpace($fileEntry)){
                     continue
                 }            
-                $kind, $filePath = $fileEntry -split '\t'            
-                "<path action=`"$kind`" prop-mods=`"false`" text-mods=`"true`" kind=`"file`">$filePath</path>"
+                $kind, $filePath = $fileEntry -split '\t'
+                if($kind.StartsWith("R"))
+                {
+                    $pathParts = $filePath -split " "
+                    "<path action=`"M`" prop-mods=`"false`" text-mods=`"true`" kind=`"file`" copyfromPath`"$($pathParts[0])`">$($pathParts[1])</path>"
+                }else{
+                    "<path action=`"$kind`" prop-mods=`"false`" text-mods=`"true`" kind=`"file`">$filePath</path>"
+                }
+                
             }
             "</paths>"
             "</logentry>"
